@@ -1,4 +1,4 @@
-'''Here is the module Doc-string
+'''This module is used to domain colour a complex valued function
 '''
 import colorsys as cs
 import numpy as np

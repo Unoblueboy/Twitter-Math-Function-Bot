@@ -1,4 +1,4 @@
-'''This is the module doc-string
+'''This module is used to generate random functions.
 '''
 from math import (sin, cos, tan,
                   sinh, cosh, tanh)
