@@ -123,22 +123,64 @@ class FunctionPlot():
         return result
 
     def plot(self):
+        plt.axis('off')
         plt.imshow(self.res, interpolation='nearest')
         plt.show()
+    
+    def save(self, filename=None):
+        domain_width = self.domain.max_re-self.domain.min_re
+        domain_height = self.domain.max_im-self.domain.min_im
+        fig = plt.figure(figsize=(domain_width, 
+                                    domain_height))
+        ax1 = fig.add_subplot(1,1,1)
+        ax1.imshow(self.res, interpolation='nearest')
+        ax1.axis('off')
+        extent = ax1.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+        if filename:
+            fig.savefig(filename, bbox_inches=extent)
+        else:
+            fig.savefig('temp.png', bbox_inches=extent)
+        # plt.axis('off')
+        # plt.imshow(self.res, interpolation='nearest')
+        # if filename:
+        #     plt.savefig(filename)
+        # else:
+        #     plt.savefig('temp.png')
         
 
 
 def domain_colouring(x):
     # needs to return rgba with all values in interval [0,1]
     a = 0.5
-    hue = (np.pi + np.angle(x))/(2*np.pi)
+    hue = (0.5 + (np.pi + np.angle(x))/(2*np.pi)) % 1
     value = a + (np.log(abs(x))/np.log(2) % 1)*(1-a)
     saturation = 1
     rgb_tuple = cs.hsv_to_rgb(hue, saturation, value)
     return [rgb_tuple[0],rgb_tuple[1],rgb_tuple[2],1]
 
-d = Domain(-3,3,-3,3)
-def f(z):
-    return np.sin(1/z)
-f_p = FunctionPlot(f, domain_colouring, d, 512, 512, grid=True)
-f_p.plot()
+if __name__ == '__main__':
+    # Cool looking seed values
+    # 2, 52, 94, 124396, 123456789, 123454321
+    from function_generator import FunctionGenerator as FG
+    from scipy.special import gamma
+    unary_ops = {
+                "sin" : lambda x : np.sin(x),
+                "cos" : lambda x : np.cos(x),
+                "tan" : lambda x : np.tan(x),
+                "sinh" : lambda x : np.sinh(x),
+                "cosh" : lambda x : np.cosh(x),
+                "tanh" : lambda x : np.tanh(x),
+                "repr" : lambda x : 1/x,
+            }
+    f_gen = FG(unary_op=unary_ops)
+    f1 = f_gen.generate_function(rand_seed=2)
+    def f(z):
+        ans = f1(z)
+        if np.isfinite(ans):
+            return ans
+        else:
+            return 0
+    d = Domain(-3,3,-3,3)
+    f_p = FunctionPlot(f, domain_colouring, d, 512, 512, grid=False)
+    f_p.save()
+    f_p.plot()
