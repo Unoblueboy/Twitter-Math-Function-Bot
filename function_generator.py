@@ -48,6 +48,7 @@ class FunctionGenerator(object):
         self.num_una_ops = len(self.unary_ops)
         self.total_ops = self.num_bin_ops + self.num_una_ops
         self.current_function = None
+        self.current_function_text = ""
 
     def generate_function(self, iteration_depth=10, rand_seed=None):
         '''A function to generate a function by repeated composition of
@@ -60,6 +61,7 @@ class FunctionGenerator(object):
                 The seed which is used to choose random functions. If it is None
                 then refer to the random module to find the seed which is used
         '''
+        current_func_text = "z"
         if rand_seed:
             seed(rand_seed)
         functions = (lambda z: z,)
@@ -73,17 +75,21 @@ class FunctionGenerator(object):
                 if randint(1, 2) == 1:
                     def g(z, op=bin_op, f=func):
                         return op(f(z), val)
+                    current_func_text = bin_op_key + "(" + current_func_text + "," + str(val) + ")"
                 else:
                     def g(z, op=bin_op, f=func):
                         return op(val, f(z))
+                    current_func_text = bin_op_key + "(" + str(val) + "," + current_func_text + ")"
             else:
                 una_op_key = sample(self.unary_ops.keys(), 1)[0]
                 una_op = self.unary_ops[una_op_key]
 
                 def g(z, op=una_op, f=func):
-                        return op(f(z))
+                    return op(f(z))
+                current_func_text = una_op_key + "(" + current_func_text + ")"
             functions = functions.__add__((g,))
         self.current_function = functions[-1]
+        self.current_function_text = current_func_text
         return self.current_function
 
 

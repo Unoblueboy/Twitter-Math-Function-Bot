@@ -242,7 +242,7 @@ if __name__ == '__main__':
         "repr": lambda x: 1 / x,
     }
     f_gen = FG(unary_op=unary_ops)
-    f1 = f_gen.generate_function(rand_seed=2)
+    f1 = f_gen.generate_function(rand_seed=5)
 
     def f(z):
         ans = f1(z)
